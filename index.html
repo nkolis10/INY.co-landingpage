@@ -87,6 +87,16 @@
           --color-on-primary-container: var(--md-sys-color-on-primary-container-light);
           --color-secondary: var(--md-sys-color-secondary-light);
           --color-on-secondary: var(--md-sys-color-on-secondary-light);
+          --color-secondary-container: var(--md-sys-color-secondary-container-light);
+          --color-on-secondary-container: var(--md-sys-color-on-secondary-container-light);
+          --color-tertiary: var(--md-sys-color-tertiary-light);
+          --color-on-tertiary: var(--md-sys-color-on-tertiary-light);
+          --color-tertiary-container: var(--md-sys-color-tertiary-container-light);
+          --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container-light);
+          --color-error: var(--md-sys-color-error-light);
+          --color-on-error: var(--md-sys-color-on-error-light);
+          --color-error-container: var(--md-sys-color-error-container-light);
+          --color-on-error-container: var(--md-sys-color-on-error-container-light);
           --color-background: var(--md-sys-color-background-light);
           --color-on-background: var(--md-sys-color-on-background-light);
           --color-surface: var(--md-sys-color-surface-light);
@@ -96,6 +106,10 @@
           --color-outline: var(--md-sys-color-outline-light);
           --color-shadow-values: var(--md-sys-color-shadow-rgb); /* For hsla() */
           --color-surface-tint: var(--md-sys-color-surface-tint-light);
+          --color-inverse-surface: var(--md-sys-color-inverse-surface-light);
+          --color-inverse-on-surface: var(--md-sys-color-inverse-on-surface-light);
+          --color-inverse-primary: var(--md-sys-color-inverse-primary-light);
+
 
           /* Transitions */
           --transition-speed-fast: 0.2s;
@@ -111,6 +125,16 @@
           --color-on-primary-container: var(--md-sys-color-on-primary-container-dark);
           --color-secondary: var(--md-sys-color-secondary-dark);
           --color-on-secondary: var(--md-sys-color-on-secondary-dark);
+          --color-secondary-container: var(--md-sys-color-secondary-container-dark);
+          --color-on-secondary-container: var(--md-sys-color-on-secondary-container-dark);
+          --color-tertiary: var(--md-sys-color-tertiary-dark);
+          --color-on-tertiary: var(--md-sys-color-on-tertiary-dark);
+          --color-tertiary-container: var(--md-sys-color-tertiary-container-dark);
+          --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container-dark);
+          --color-error: var(--md-sys-color-error-dark);
+          --color-on-error: var(--md-sys-color-on-error-dark);
+          --color-error-container: var(--md-sys-color-error-container-dark);
+          --color-on-error-container: var(--md-sys-color-on-error-container-dark);
           --color-background: var(--md-sys-color-background-dark);
           --color-on-background: var(--md-sys-color-on-background-dark);
           --color-surface: var(--md-sys-color-surface-dark);
@@ -120,6 +144,9 @@
           --color-outline: var(--md-sys-color-outline-dark);
           --color-shadow-values: var(--md-sys-color-shadow-rgb-dark);
           --color-surface-tint: var(--md-sys-color-surface-tint-dark);
+          --color-inverse-surface: var(--md-sys-color-inverse-surface-dark);
+          --color-inverse-on-surface: var(--md-sys-color-inverse-on-surface-dark);
+          --color-inverse-primary: var(--md-sys-color-inverse-primary-dark);
         }
 
         body {
@@ -309,17 +336,20 @@
           transition: transform var(--transition-speed-medium) var(--transition-easing) 0.05s,
                       fill var(--transition-speed-medium) var(--transition-easing);
         }
-
-        .app-card:hover .app-icon {
-          transform: rotate(-10deg) scale(1.15);
-          animation: iconBounce 0.6s var(--transition-easing) 1;
-        }
-
+        
+        /* Keyframes for icon bounce (used by both desktop hover and mobile continuous) */
         @keyframes iconBounce {
           0%, 100% { transform: rotate(-10deg) scale(1.15) translateY(0); }
           50% { transform: rotate(-10deg) scale(1.15) translateY(-5px); }
         }
 
+        /* Desktop hover animation for app icons */
+        @media (min-width: 769px) {
+          .app-card:hover .app-icon {
+            /* The transform is applied by the animation's 0% keyframe */
+            animation: iconBounce 0.6s var(--transition-easing) 1; /* Play once on hover */
+          }
+        }
 
         .app-card h4 {
           font-size: 1.375rem;
@@ -372,6 +402,16 @@
           .apps-grid { grid-template-columns: 1fr; gap: 1.5rem; }
           .portfolio-section h3 { font-size: 1.75rem; }
           .app-card { padding: 1.5rem; }
+
+          /* Continuous animation for app icons on mobile */
+          .app-card .app-icon {
+            animation: iconBounce 0.8s var(--transition-easing) infinite; /* Loop continuously */
+          }
+          /* Ensure hover on mobile doesn't try to run the single-play animation if :hover is somehow activated */
+           .app-card:hover .app-icon {
+            animation-name: iconBounce; /* Keep it consistent with the continuous one */
+            /* Or set to 'none' if you want to disable hover interaction totally for the icon on mobile */
+          }
         }
 
         @media (max-width: 480px) {
@@ -393,7 +433,7 @@
             </div>
             <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle theme">
                 <svg viewBox="0 0 24 24">
-                    <path :d="isDarkMode ? icons.themeIconLight : icons.themeIconDark" />
+                    <path :d="isDarkMode ? icons.themeIconDark : icons.themeIconLight" />
                 </svg>
             </button>
         </header>
@@ -438,8 +478,8 @@
             setup() {
                 const icons = {
                   siteLogo: "M13,3L18,6L17,11.2L13,13.34L9,11.2L8,6L13,3M13,1L6,5L7,12L13,16L19,12L20,5L13,1M6,13.6L2,15.7L3,20.9L6,23L10,20.9L11,15.7L6,13.6M6,12L0,15L1,22L6,25L12,22L13,15L6,12Z", // mdiHexagonMultipleOutline
-                  themeIconLight: "M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L14.39,2.42C13.85,3.55 13.85,4.73 14.39,5.85L12,6.27V2Z M3.55,5.85L2.42,4.39L2,2L6.27,6L5.85,3.55C4.73,3.05 3.55,3.05 2.42,4.39Z M5.85,20.45L3.55,18.15L2,19.58L6,21.73L6.27,17.73L5.85,20.45Z M20.45,18.15L18.15,20.45L17.73,17.73L21.73,19.58L19.58,21.73L18.15,20.45Z M19.58,2.27L18.15,3.55L17.73,6.27L21.73,4L19.58,2.27Z", // mdiWhiteBalanceSunny
-                  themeIconDark: "M12,2A9.91,9.91 0 0,0 9,2.46A10,10 0 0,1 9,18A10,10 0 0,1 2.46,9A9.91,9.91 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z", // mdiWeatherNight
+                  themeIconLight: "M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L9.19,3.23L12,5.44L14.81,3.23L12,2M19.77,9.19L17.56,12L19.77,14.81L22,12L19.77,9.19M4.23,9.19L2,12L4.23,14.81L6.44,12L4.23,9.19M12,18.56L9.19,20.77L12,22L14.81,20.77L12,18.56Z", // mdi-brightness-5 (New Light Icon)
+                  themeIconDark: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20V4Z", // mdi-brightness-4 (New Dark Icon)
                   appIconHealthcare: "M18,14H16V16H18V14M18,10H16V12H18V10M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M14,18H10V16H14V18M14,14H10V10H14V14M8,18H6V16H8V18M8,14H6V12H8V14M8,10H6V8H8V10Z", // mdiHospitalBoxOutline
                   appIconTyping: "M20,7H4A2,2 0 0,0 2,9V15A2,2 0 0,0 4,17H20A2,2 0 0,0 22,15V9A2,2 0 0,0 20,7M4,9H20V15H4V9M6,10V12H8V10H6M9,10V12H11V10H9M12,10V12H14V10H12M15,10V12H17V10H15M6,13V14H18V13H6Z", // mdiKeyboardOutline
                   appIconFlashcard: "M3,5H1V19A2,2 0 0,0 3,21H19V19H3V5M21,1A2,2 0 0,1 23,3V17A2,2 0 0,1 21,19H7A2,2 0 0,1 5,17V3A2,2 0 0,1 7,1H21M7,3V17H21V3H7Z", // mdiTextBoxMultipleOutline
@@ -450,19 +490,19 @@
 
                 const webApps = ref([
                     {
-                        name: "Healthcare.app",
+                        name: "INY Healthcare",
                         description: "A modern web application for managing healthcare needs and information.",
                         url: "https://iny-healthcare.vercel.app/",
                         icon: icons.appIconHealthcare
                     },
                     {
-                        name: "TypeTest.app",
+                        name: "INY TypeTest",
                         description: "Test and improve your typing speed with this interactive online tool.",
                         url: "https://iny-typingspeedtest.netlify.app/",
                         icon: icons.appIconTyping
                     },
                     {
-                        name: "Flashcards.app",
+                        name: "INY Flashcards",
                         description: "Boost your learning and memorization with customizable digital flashcards.",
                         url: "https://iny-flashcard.netlify.app/",
                         icon: icons.appIconFlashcard
